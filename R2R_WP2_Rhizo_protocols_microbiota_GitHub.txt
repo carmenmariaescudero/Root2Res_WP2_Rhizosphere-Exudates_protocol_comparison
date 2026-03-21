@@ -412,9 +412,6 @@ summary(Shannon_OTUs_stats)
 #Tukey test 
 TukeyHSD(Shannon_OTUs_stats, ordered = TRUE)
 
-
-########################################################################################
-
 ##############################################################
 ## Enriched from the rhizosphere on different protocols
 ###############################################################
@@ -521,10 +518,8 @@ rhizo_EO_drywet_enriched_FDR005 <- intersect(rownames(rhizo_EO_drywet_FDR005), r
 length(rhizo_EO_drywet_enriched_FDR005)
 #Enriched in EO_drywet      
 
-
 #####################################################################################################
-
-##Comparison between protocols
+##Comparison between approaches
 ###########################################################################################################
 DB_vs_DBall <- results(JH33_cds_test, contrast = c("Description2","Barke-db","Barke-dball")) 
 
@@ -614,7 +609,6 @@ length(DB_vs_EOwet_enriched_FDR005)
 DB_vs_EOwet_enriched_FDR005_rhizo <- intersect(DB_vs_EOwet_enriched_FDR005,rhizo_EO_wet_enriched_FDR005)
 length(DB_vs_EOwet_enriched_FDR005_rhizo)
 
-
 JH33_DB_vs_EOwet <- prune_taxa(DB_vs_EOwet_enriched_FDR005_rhizo, JH33_plants)
 JH33_DB_vs_EOwet
 
@@ -639,11 +633,8 @@ DB_vs_EOdrywet_enriched_FDR005 <- intersect(rownames(DB_vs_EOdrywet_FDR005), row
 #Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
 length(DB_vs_EOdrywet_enriched_FDR005)
 
-
-
 DB_vs_EOdrywet_enriched_FDR005_rhizo <- intersect(DB_vs_EOdrywet_enriched_FDR005,rhizo_DB_enriched_FDR005)
 length(DB_vs_EOdrywet_enriched_FDR005_rhizo)
-
 
 JH33_DB_vs_EOdrywet <- prune_taxa(DB_vs_EOdrywet_enriched_FDR005_rhizo, JH33_plants)
 JH33_DB_vs_EOdrywet
@@ -666,7 +657,6 @@ DB_all_vs_EO_enriched_FDR005 <- intersect(rownames(DB_all_vs_EO_FDR005), rowname
 
 #Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
 length(DB_all_vs_EO_enriched_FDR005)
-
 
 DB_all_vs_EO_enriched_FDR005_rhizo <- intersect(DB_all_vs_EO_enriched_FDR005,rhizo_DB_all_enriched_FDR005)
 length(DB_all_vs_EO_enriched_FDR005_rhizo)
@@ -703,11 +693,9 @@ JH33_DB_all_vs_EO_drywet
 All_DB_all_vs_EO_drywet <- median(sample_sums(JH33_DB_all_vs_EO_drywet))/median(sample_sums(JH33_plants)) * 100
 All_DB_all_vs_EO_drywet
 
-
-
 ###################################################################################
 ###################################################################################
-#Data visualisation using UpSetR
+# Figure 4 b: Data visualisation using UpSetR
 ###################################################################################
 
 #Prepare the data for UpSetR visualisation
@@ -779,8 +767,6 @@ enriched_Rhizo[is.na(enriched_Rhizo)] <- 0
 upset_ordered<-upset(enriched_Rhizo, sets = c("Rhizo_DB", "Rhizo_DBall" ,"Rhizo_EOwet" ,"Rhizo_EOdrywet"), sets.bar.color =c("#D55E00","#E69F00","#56B4E9","#0072B2"),
                      order.by = "freq" , empty.intersections = "on")
 upset_ordered
-
-
 
 ###########################################################################################################
 ###% reads enriched in each Upset intersections
@@ -914,10 +900,510 @@ JH33_rhizo_EOwet_DB_proportion
 JH33_rhizo_EOdrywet_DBall_proportion <- median(sample_sums(JH33_rhizo_EOdrywet_DBall))/median(sample_sums(JH33_plants)) * 100
 JH33_rhizo_EOdrywet_DBall_proportion
 
-
 JH33_rhizo_EOdrywet_DB_proportion <- median(sample_sums(JH33_rhizo_EOdrywet_DB))/median(sample_sums(JH33_plants)) * 100
 JH33_rhizo_EOdrywet_DB_proportion
 
 
-#Note that the code above will provide you with the % of reads DE in th rhizosphere microbiota                     
-                     
+#Note that the code above will provide you with the % of reads DE in th rhizosphere microbiota  
+
+############################################################################################################################
+##Figure 4b Complex Upset plot 
+############################################################################################################################
+
+JH33_cds_test<- readRDS("JH33_cds_test_ASVs")
+
+rhizo_DB <- results(JH33_cds_test, contrast = c("Description2","Barke-db","BulkDB")) 
+
+#inspect a result file
+rhizo_DB 
+mcols(rhizo_DB  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+rhizo_DB_FDR005 <- rhizo_DB[(rownames(rhizo_DB)[which(rhizo_DB$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, Barke is at the second term of comparison)
+rhizo_DB_enriched <-  rhizo_DB[(rownames(rhizo_DB)[which(rhizo_DB$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+rhizo_DB_enriched_FDR005 <- intersect(rownames(rhizo_DB_FDR005), rownames(rhizo_DB_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(rhizo_DB_enriched_FDR005)
+
+#################################################################################
+
+rhizo_DB_all <- results(JH33_cds_test, contrast = c("Description2","Barke-dball","BulkDB")) 
+
+#inspect a result file
+rhizo_DB_all 
+
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+rhizo_DB_all_FDR005 <- rhizo_DB_all[(rownames(rhizo_DB_all)[which(rhizo_DB_all$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+rhizo_DB_all_enriched <-  rhizo_DB_all[(rownames(rhizo_DB_all)[which(rhizo_DB_all$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+rhizo_DB_all_enriched_FDR005 <- intersect(rownames(rhizo_DB_all_FDR005), rownames(rhizo_DB_all_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(rhizo_DB_all_enriched_FDR005)
+
+
+#Allsoils_taxa_table<-tax_table(All_soils_rare_25K)
+#Allsoils_taxa_table[rhizo_DB_all_enriched_FDR005, ]
+
+############
+
+rhizo_EO_wet <- results(JH33_cds_test, contrast = c("Description2","Barke-wet","BulkEO")) 
+
+#inspect a result file
+rhizo_EO_wet 
+
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+rhizo_EO_wet_FDR005 <- rhizo_EO_wet[(rownames(rhizo_EO_wet)[which(rhizo_EO_wet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+rhizo_EO_wet_enriched <-  rhizo_EO_wet[(rownames(rhizo_EO_wet)[which(rhizo_EO_wet$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+rhizo_EO_wet_enriched_FDR005 <- intersect(rownames(rhizo_EO_wet_FDR005), rownames(rhizo_EO_wet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(rhizo_EO_wet_enriched_FDR005)
+
+##################################################################################
+rhizo_EO_drywet <- results(JH33_cds_test, contrast = c("Description2","Barke-drywet","BulkEO")) 
+
+#inspect a result file
+rhizo_EO_drywet 
+
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+rhizo_EO_drywet_FDR005 <- rhizo_EO_drywet[(rownames(rhizo_EO_drywet)[which(rhizo_EO_drywet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+rhizo_EO_drywet_enriched <-  rhizo_EO_drywet[(rownames(rhizo_EO_drywet)[which(rhizo_EO_drywet$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+rhizo_EO_drywet_enriched_FDR005 <- intersect(rownames(rhizo_EO_drywet_FDR005), rownames(rhizo_EO_drywet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(rhizo_EO_drywet_enriched_FDR005)
+#Enriched in EO_drywet      
+
+#####################################################################################################
+##Comparison between protocols
+###########################################################################################################
+DB_vs_DBall <- results(JH33_cds_test, contrast = c("Description2","Barke-db","Barke-dball")) 
+
+#inspect a result file
+DB_vs_DBall 
+mcols(DB_vs_DBall  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+DB_vs_DBall_FDR005 <- DB_vs_DBall[(rownames(DB_vs_DBall)[which(DB_vs_DBall$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+DB_vs_DBall_enriched <-  DB_vs_DBall[(rownames(DB_vs_DBall)[which(DB_vs_DBall$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+DB_vs_DBall_enriched_FDR005 <- intersect(rownames(DB_vs_DBall_FDR005), rownames(DB_vs_DBall_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(DB_vs_DBall_enriched_FDR005)
+#Enriched in DB rhizo 474
+
+DB_vs_DBall_enriched_FDR005_rhizo <- intersect(DB_vs_DBall_enriched_FDR005, rhizo_DB_enriched_FDR005)
+length(DB_vs_DBall_enriched_FDR005_rhizo)
+
+#remove bulk#remove bulk#remove bulk soil whose abundances are markedly different from plant-associated ones
+JH33_plants <- subset_samples(JH33_rare_ASV_64K, Description !="Bulk")
+JH33_plants_otu_table<-otu_table(JH33_plants)
+sum(sample_sums(JH33_plants))
+taxa_names(JH33_plants)
+
+############################################################################### Table S4
+EO_vs_EOdrywet <- results(JH33_cds_test, contrast = c("Description2","Barke-wet","Barke-drywet")) 
+
+#inspect a result file
+EO_vs_EOdrywet 
+mcols(EO_vs_EOdrywet  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+EO_vs_EOdrywet_FDR005 <- EO_vs_EOdrywet[(rownames(EO_vs_EOdrywet)[which(EO_vs_EOdrywet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+EO_vs_EOdrywet_enriched <-  EO_vs_EOdrywet[(rownames(EO_vs_EOdrywet)[which(EO_vs_EOdrywet$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+EO_vs_EOdrywet_enriched_FDR005 <- intersect(rownames(EO_vs_EOdrywet_FDR005), rownames(EO_vs_EOdrywet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(EO_vs_EOdrywet_enriched_FDR005)
+
+EO_vs_EOdrywet_enriched_FDR005_rhizo <- intersect(EO_vs_EOdrywet_enriched_FDR005,rhizo_EO_wet_enriched_FDR005)
+length(EO_vs_EOdrywet_enriched_FDR005_rhizo)
+
+###################################################################################
+DB_vs_EOwet <- results(JH33_cds_test, contrast = c("Description2","Barke-db","Barke-wet")) 
+
+#inspect a result file
+DB_vs_EOwet 
+mcols(DB_vs_EOwet  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+DB_vs_EOwet_FDR005 <- DB_vs_EOwet[(rownames(DB_vs_EOwet)[which(DB_vs_EOwet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, Barke-wet is at the second term of comparison)
+DB_vs_EOwet_enriched <-  DB_vs_EOwet[(rownames(DB_vs_EOwet)[which(DB_vs_EOwet$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+DB_vs_EOwet_enriched_FDR005 <- intersect(rownames(DB_vs_EOwet_FDR005), rownames(DB_vs_EOwet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(DB_vs_EOwet_enriched_FDR005)
+
+DB_vs_EOwet_enriched_FDR005_rhizo <- intersect(DB_vs_EOwet_enriched_FDR005,rhizo_EO_wet_enriched_FDR005)
+length(DB_vs_EOwet_enriched_FDR005_rhizo)
+############################################################################################################
+
+DB_vs_EOdrywet <- results(JH33_cds_test, contrast = c("Description2","Barke-db","Barke-drywet")) 
+
+#inspect a result file
+DB_vs_EOdrywet 
+mcols(DB_vs_EOdrywet  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+DB_vs_EOdrywet_FDR005 <- DB_vs_EOdrywet[(rownames(DB_vs_EOdrywet)[which(DB_vs_EOdrywet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+DB_vs_EOdrywet_enriched <-  DB_vs_EOdrywet[(rownames(DB_vs_EOdrywet)[which(DB_vs_EOdrywet$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+DB_vs_EOdrywet_enriched_FDR005 <- intersect(rownames(DB_vs_EOdrywet_FDR005), rownames(DB_vs_EOdrywet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(DB_vs_EOdrywet_enriched_FDR005)
+
+DB_vs_EOdrywet_enriched_FDR005_rhizo <- intersect(DB_vs_EOdrywet_enriched_FDR005,rhizo_DB_enriched_FDR005)
+length(DB_vs_EOdrywet_enriched_FDR005_rhizo)
+
+#############################################################################################################
+DB_all_vs_EO  <- results(JH33_cds_test, contrast = c("Description2","Barke-dball","Barke-wet")) 
+DB_all_vs_EO 
+mcols(DB_all_vs_EO  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+DB_all_vs_EO_FDR005 <- DB_all_vs_EO[(rownames(DB_all_vs_EO)[which(DB_all_vs_EO$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+DB_all_vs_EO_enriched <-  DB_all_vs_EO[(rownames(DB_all_vs_EO)[which(DB_all_vs_EO$log2FoldChange > 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+DB_all_vs_EO_enriched_FDR005 <- intersect(rownames(DB_all_vs_EO_FDR005), rownames(DB_all_vs_EO_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(DB_all_vs_EO_enriched_FDR005)
+
+DB_all_vs_EO_enriched_FDR005_rhizo <- intersect(DB_all_vs_EO_enriched_FDR005,rhizo_DB_all_enriched_FDR005)
+length(DB_all_vs_EO_enriched_FDR005_rhizo)
+
+###############################################################################################
+DB_all_vs_EO_drywet  <- results(JH33_cds_test, contrast = c("Description2","Barke-dball","Barke-drywet")) 
+DB_all_vs_EO_drywet 
+mcols(DB_all_vs_EO_drywet  , use.names=TRUE)
+# extract  OTUs whose adjusted p.value in a given comparison is below 0.05. 
+DB_all_vs_EO_drywet_FDR005 <- DB_all_vs_EO_drywet[(rownames(DB_all_vs_EO_drywet)[which(DB_all_vs_EO_drywet$padj <0.05)]), ]
+
+#enriched in rhizosphere (negative fold change, HID is at the second term of comparison)
+DB_all_vs_EO_drywet_enriched <-  DB_all_vs_EO_drywet[(rownames(DB_all_vs_EO_drywet)[which(DB_all_vs_EO_drywet$log2FoldChange < 0)]), ]
+
+#To identify OTUs significantly enriched in the compartment of interest an intersection of these lists is required
+DB_all_vs_EO_drywet_enriched_FDR005 <- intersect(rownames(DB_all_vs_EO_drywet_FDR005), rownames(DB_all_vs_EO_drywet_enriched))
+
+#Define the number of OTUs significantly enriched in and differentiating between each plant-associated compartment and unplanted soil
+length(DB_all_vs_EO_drywet_enriched_FDR005)
+
+DB_all_vs_EO_drywet_enriched_FDR005_rhizo <- intersect(DB_all_vs_EO_drywet_enriched_FDR005,rhizo_DB_all_enriched_FDR005)
+length(DB_all_vs_EO_drywet_enriched_FDR005_rhizo)
+##
+###################################################################################
+###################################################################################
+#Data visualisation using UpSetR
+###################################################################################
+
+#Prepare the data for UpSetR visualisation
+DB_enriched_vs_BulkDB_FDR_005<-rhizo_DB_FDR005[rhizo_DB_enriched_FDR005,]
+DBall_enriched_vs_BulkDB_FDR_005<-rhizo_DB_all_FDR005[rhizo_DB_all_enriched_FDR005,]
+EOwet_enriched_vs_BulkEO_FDR_005<-rhizo_EO_wet_FDR005[rhizo_EO_wet_enriched_FDR005,]
+EOdrywet_enriched_vs_BulkEO_FDR_005<-rhizo_EO_drywet_FDR005[rhizo_EO_drywet_enriched_FDR005,]
+#Extract baseMean (1st column)
+DB_enriched_vs_DB_FDR_005_df <- as.data.frame(DB_enriched_vs_BulkDB_FDR_005[ ,1])
+DBall_enriched_vs_DBall_FDR_005_df <- as.data.frame(DBall_enriched_vs_BulkDB_FDR_005[ ,1])
+EOwet_enriched_vs_EOwet_FDR_005_df <- as.data.frame(EOwet_enriched_vs_BulkEO_FDR_005[ ,1])
+EOdrywet_enriched_vs_EOdrywet_FDR_005_df <- as.data.frame(EOdrywet_enriched_vs_BulkEO_FDR_005[ ,1])
+
+#rename rows
+rownames(DB_enriched_vs_DB_FDR_005_df)<-rhizo_DB_enriched_FDR005
+rownames(DBall_enriched_vs_DBall_FDR_005_df)<-rhizo_DB_all_enriched_FDR005
+rownames(EOwet_enriched_vs_EOwet_FDR_005_df)<-rhizo_EO_wet_enriched_FDR005
+rownames(EOdrywet_enriched_vs_EOdrywet_FDR_005_df)<-rhizo_EO_drywet_enriched_FDR005
+
+#rename columns
+colnames(DB_enriched_vs_DB_FDR_005_df)<-c("counts_rhizo_DB")
+colnames(DBall_enriched_vs_DBall_FDR_005_df)<-c("counts_rhizo_DBall")
+colnames(EOwet_enriched_vs_EOwet_FDR_005_df)<-c("counts_rhizo_EOwet")
+colnames(EOdrywet_enriched_vs_EOdrywet_FDR_005_df)<-c("counts_rhizo_EOdrywet")
+
+DB_enriched_vs_DB_FDR_005_df[DB_enriched_vs_DB_FDR_005_df > 1] <- 1
+DBall_enriched_vs_DBall_FDR_005_df[DBall_enriched_vs_DBall_FDR_005_df > 1] <- 1
+EOwet_enriched_vs_EOwet_FDR_005_df[EOwet_enriched_vs_EOwet_FDR_005_df > 1] <- 1
+EOdrywet_enriched_vs_EOdrywet_FDR_005_df[EOdrywet_enriched_vs_EOdrywet_FDR_005_df > 1] <- 1
+
+dim(DB_enriched_vs_DB_FDR_005_df)
+dim(DBall_enriched_vs_DBall_FDR_005_df)
+dim(EOwet_enriched_vs_EOwet_FDR_005_df)
+dim(EOdrywet_enriched_vs_EOdrywet_FDR_005_df)
+
+#define a list of unique OTUs
+Rhizo_list <- unique(c(rownames(DB_enriched_vs_DB_FDR_005_df), rownames(DBall_enriched_vs_DBall_FDR_005_df), rownames(EOwet_enriched_vs_EOwet_FDR_005_df), rownames(EOdrywet_enriched_vs_EOdrywet_FDR_005_df)))
+length(Rhizo_list)
+#Pellet
+
+DB_enriched_merging<- as.data.frame(DB_enriched_vs_DB_FDR_005_df[Rhizo_list, ])
+DBall_enriched_merging<- as.data.frame(DBall_enriched_vs_DBall_FDR_005_df[Rhizo_list, ])
+EOwet_enriched_merging<- as.data.frame(EOwet_enriched_vs_EOwet_FDR_005_df[Rhizo_list, ])
+EOdrywet_enriched_merging<- as.data.frame(EOdrywet_enriched_vs_EOdrywet_FDR_005_df[Rhizo_list, ])
+
+colnames(DB_enriched_merging) <- c("Rhizo_DB")
+colnames(DBall_enriched_merging) <- c("Rhizo_DBall")
+colnames(EOwet_enriched_merging) <- c("Rhizo_EOwet")
+colnames(EOdrywet_enriched_merging) <- c("Rhizo_EOdrywet")
+
+row.names(DB_enriched_merging) <- as.vector(Rhizo_list)
+row.names(DBall_enriched_merging) <- as.vector(Rhizo_list)
+row.names(EOwet_enriched_merging) <- as.vector(Rhizo_list)
+row.names(EOdrywet_enriched_merging) <- as.vector(Rhizo_list)
+
+#Merge the dataset
+enriched_Rhizo <- cbind(DB_enriched_merging, DBall_enriched_merging, EOwet_enriched_merging, EOdrywet_enriched_merging)
+
+enriched_Rhizo<-as.data.frame(enriched_Rhizo)######### INPUT FOR COMPLEX UPSET PLOT!!!!
+
+#set NA to 0
+enriched_Rhizo[is.na(enriched_Rhizo)] <- 0
+
+##################################################################################################
+##Complex Upset just intersection information
+# Your merged data
+enriched_Rhizo <- as.data.frame(enriched_Rhizo)
+enriched_Rhizo$Taxon <- rownames(enriched_Rhizo)
+
+# Make sure all columns are numeric 
+enriched_Rhizo$Rhizo_DB <- as.numeric(enriched_Rhizo$Rhizo_DB)
+enriched_Rhizo$Rhizo_DBall <- as.numeric(enriched_Rhizo$Rhizo_DBall)
+enriched_Rhizo$Rhizo_EOwet <- as.numeric(enriched_Rhizo$Rhizo_EOwet)
+enriched_Rhizo$Rhizo_EOdrywet <- as.numeric(enriched_Rhizo$Rhizo_EOdrywet)
+
+# Plot
+complex_upset_plot <- upset(
+  enriched_Rhizo,
+  intersect = c("Rhizo_DB", "Rhizo_DBall", "Rhizo_EOwet", "Rhizo_EOdrywet"),
+  name = "Enrichment",
+  base_annotations = list(
+    'Intersection size' = intersection_size(
+      text = list(vjust = -0.5)
+    )
+  ),
+  set_sizes = upset_set_size()
+)
+
+print(complex_upset_plot)
+
+####Adding the abundance information
+#####################################################################
+
+## Becuause I change the rownames for Upset plot, I need to add an aditional colum to design 'Description 3' with new colnames
+design_abundance2 <- read.delim("JH33_plants_design_abundance2.txt", sep = "\t", header=TRUE, row.names=1)
+colnames(design_abundance2)
+
+## 2) Abundance info################################
+library(dplyr)
+library(tibble)
+
+JH33_plants <- subset_samples(JH33_rare_ASV_64K, Description !="Bulk")
+JH33_plants <- subset_samples(JH33_plants, Description !="Blank")
+
+JH33_plants_otu_table<-otu_table(JH33_plants)
+
+# Transpose OTU table to have samples as rows
+otu_t <- as.data.frame(t(otu_table(JH33_plants)))
+rownames (otu_t)
+colnames (design_abundance2)
+
+# Add Description3 grouping variable from metadata
+otu_t$Description3 <- design_abundance2[rownames(otu_t), "Description3"]
+
+# Manually select numeric columns
+numeric_cols <- sapply(otu_t, is.numeric)
+
+# Summarize by Description3, summing over selected numeric columns
+otu_grouped <- otu_t %>%
+  group_by(Description3) %>%
+  summarise_at(names(otu_t)[numeric_cols], sum, na.rm = TRUE) %>%
+  column_to_rownames("Description3")
+
+# Transpose back to have OTUs as rows
+otu_grouped_t <- as.data.frame(t(otu_grouped))
+head(otu_grouped_t)
+# Add Phylum info and collapse
+taxonomy_df<-tax_table(JH33_plants)
+otu_grouped_t$Phylum <- taxonomy_df[rownames(otu_grouped_t), "Phylum"]
+
+numeric_cols_phy <- sapply(otu_grouped_t, is.numeric)
+head (numeric_cols_phy)
+
+# Summarize by Phylum, summing numeric columns
+phylum_grouped <- otu_grouped_t %>%
+  group_by(Phylum) %>%
+  summarise_at(names(otu_grouped_t)[numeric_cols_phy], sum, na.rm = TRUE) %>%
+  as.data.frame()
+
+head (phylum_grouped)######### INPUT FOR COMPLEX UPSET PLOT!!!!
+
+#########################################
+##Upset info into Phylum level#################################
+##########################################
+
+# Merge enriched_Rhizo with taxonomy table (assuming 'Phylum' column in taxonomy)
+
+# Your merged data
+enriched_Rhizo <- as.data.frame(enriched_Rhizo)
+enriched_Rhizo$Taxon <- rownames(enriched_Rhizo)
+
+# Make sure all columns are numeric 0/1 for presence/absence
+enriched_Rhizo$Rhizo_DB <- as.numeric(enriched_Rhizo$Rhizo_DB)
+enriched_Rhizo$Rhizo_DBall <- as.numeric(enriched_Rhizo$Rhizo_DBall)
+enriched_Rhizo$Rhizo_EOwet <- as.numeric(enriched_Rhizo$Rhizo_EOwet)
+enriched_Rhizo$Rhizo_EOdrywet <- as.numeric(enriched_Rhizo$Rhizo_EOdrywet)
+
+#Tax table into data.frame
+taxonomy_df<-tax_table(JH33_plants)
+
+taxonomy_df<-as.data.frame(taxonomy_df)
+head(taxonomy_df)
+taxonomy_df$Taxon <- rownames(taxonomy_df)
+
+# Identify numeric columns
+num_cols_enrich <- sapply(enriched_Rhizo, is.numeric)
+
+# Merge with taxonomy: Phylum
+enriched_phylum <- enriched_Rhizo %>%
+  left_join(taxonomy_df, by = c("Taxon")) %>%
+  group_by(Phylum) %>%
+  summarise_at(vars(names(enriched_Rhizo)[num_cols_enrich]), sum, na.rm = TRUE) %>%
+  as.data.frame()
+
+head (enriched_phylum)
+
+###########################################################
+library(ComplexUpset)
+library(ggplot2)
+library(dplyr)
+
+#Use phylum_grouped for total abundance
+#phylum_grouped$Phylum is a taxonomy Table object, not a plain character or factor 
+phylum_grouped$Phylum <- as.character(phylum_grouped$Phylum)
+
+#Use 'phylum_grouped for relative abundance
+#The same for 'phylum_grouped' I need this as a character
+phylum_grouped$Phylum <- as.character(phylum_grouped$Phylum)
+#phylum_grouped$Abundance <- as.character(phylum_grouped$Abundance) df_phylum_0
+head(phylum_grouped)
+is.character(phylum_grouped$Phylum)
+# Merge presence/absence with relative abundance
+phylum_data <- enriched_phylum %>%
+  left_join(phylum_grouped, by = "Phylum")
+
+phylum_data<-as.data.frame(phylum_data)
+head(phylum_data)
+#write.table(phylum_data, file="phylum_data_conplexUpset_0425.txt ", sep="\t")
+colnames(phylum_data)
+dim(phylum_data)
+
+# Plot
+###########################
+
+# Custom palette
+
+c16<-c("darkorange4", "#E31A1C", "#009E73", "#6A3D9A", "#D55E00", "black", "palegreen2", "#88CCEE", "#0072B2", "#DDCC77", "#999999", "#999933","gold1" , "darkturquoise", "#CC79A7", "brown")
+
+# ComplexUpset plot
+upset(
+  phylum_data,
+  intersect = c("Rhizo_DB.x", "Rhizo_DBall.x", "Rhizo_EOwet.x", "Rhizo_EOdrywet.x"),
+  name = "Enrichment",
+  base_annotations = list(
+    'Intersection size' = intersection_size(text = list(vjust = -0.5)),
+    'Abundance' = (
+      ggplot(mapping = aes(x = .data$intersection, y = Rhizo_DB.y, fill = Phylum)) +
+        geom_col() +
+        theme_minimal() +
+        scale_fill_manual(values = c16) +
+        labs(y = "Abundance", x = NULL)
+    )
+  ),
+  set_sizes = upset_set_size()
+)
+
+##At  ASVs level##################################
+library(ComplexUpset)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+
+# Add Taxon column to intersection matrix
+enriched_Rhizo$Taxon <- rownames(enriched_Rhizo)
+
+# Extract ASV abundances (already transposed)
+otu_grouped_t$Taxon <- rownames(otu_grouped_t)
+otu_grouped_t$Phylum <- taxonomy_df[rownames(otu_grouped_t), "Phylum"]
+
+# Merge presence/absence with abundance and Phylum info
+asv_data <- enriched_Rhizo %>%
+  left_join(otu_grouped_t, by = "Taxon")
+
+# Use one representative abundance column for plotting
+# You can replace 'DB_rhizo_sample' with a sample group or mean abundance
+asv_data$Abundance <- asv_data$Rhizo_DB.y 
+
+# Ensure Phylum is character
+asv_data$Phylum <- as.character(asv_data$Phylum)
+head(asv_data)
+
+# Plot at ASV level: bar per ASV, colored by phylum
+upset(
+  asv_data,
+  intersect = c("Rhizo_DB.x", "Rhizo_DBall.x", "Rhizo_EOwet.x", "Rhizo_EOdrywet.x"),
+  name = "ASV Enrichment",
+  base_annotations = list(
+    'Intersection size' = intersection_size(aes(y = Abundance, fill = Phylum),text = list(vjust = -0.5))
+  ),
+  set_sizes = upset_set_size()
+) + scale_fill_manual(values = c16) + labs(fill = "Phylum", y = "ASV Abundance")
+
+#############################################################################################
+c16<-c("darkorange4", "#E31A1C", "#009E73", "#6A3D9A", "#D55E00", "black", "palegreen2", "#88CCEE", "#0072B2", "#DDCC77", "#999999", "#999933","gold1",  "darkturquoise", "#CC79A7", "brown")
+
+unique(asv_data$Phylum)
+#####################################################
+library(ComplexUpset)
+library(ggplot2)
+
+upset(
+  asv_data,
+  intersect = c("Rhizo_DB.x", "Rhizo_DBall.x", "Rhizo_EOwet.x", "Rhizo_EOdrywet.x"),
+  base_annotations = list(
+    'Intersection size' = intersection_size(
+      aes(weight = Abundance, fill = Phylum),
+      text = list(vjust = -0.5)
+    ) +
+      scale_fill_manual(values = c16) +
+      labs(y = "Number of ASVs")
+  ),
+  set_sizes = upset_set_size()
+)
